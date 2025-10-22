@@ -1,0 +1,1477 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>資訊安全知識心智圖</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/umd/lucide.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .mindmap {
+            background: white;
+            border-radius: 20px;
+            padding: 60px 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        .center-node {
+            display: none;
+        }
+
+        .sections-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            min-height: 800px;
+        }
+
+        .left-section, .right-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .category {
+            margin-bottom: 15px;
+        }
+
+        .category-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #764ba2;
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf4 100%);
+            border-left: 5px solid #764ba2;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .node {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 14px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: relative;
+            font-size: 0.9em;
+            min-height: 50px;
+        }
+
+        .node:hover {
+            transform: translateX(5px) scale(1.02);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .node i {
+            flex-shrink: 0;
+            width: 20px;
+            height: 20px;
+        }
+
+        .node span {
+            flex: 1;
+            line-height: 1.4;
+        }
+
+        .relation-badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            font-size: 0.65em;
+            padding: 2px 6px;
+            border-radius: 8px;
+            margin-left: 5px;
+        }
+
+        .icon-badge {
+            background: rgba(118, 75, 162, 0.1);
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 0.75em;
+            color: #764ba2;
+            font-weight: 600;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            max-width: 900px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #764ba2;
+            color: white;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: #667eea;
+            transform: rotate(90deg);
+        }
+
+        .modal-title {
+            color: #764ba2;
+            font-size: 2em;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 3px solid #764ba2;
+            padding-bottom: 15px;
+        }
+
+        .modal-section {
+            margin-bottom: 25px;
+        }
+
+        .modal-section h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-section p {
+            line-height: 1.8;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .modal-section ul {
+            list-style: none;
+            padding-left: 20px;
+        }
+
+        .modal-section li {
+            padding: 8px 0;
+            position: relative;
+            line-height: 1.6;
+        }
+
+        .modal-section li:before {
+            content: "▸";
+            position: absolute;
+            left: -15px;
+            color: #667eea;
+        }
+
+        .relation-tag {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            margin: 3px;
+            transition: all 0.3s ease;
+        }
+
+        .relation-tag:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        @media (max-width: 968px) {
+            .sections-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>資訊安全知識心智圖 🔐</h1>
+        
+        <div class="mindmap">
+            <div class="sections-container">
+                <!-- 左側區塊 -->
+                <div class="left-section">
+                    <div class="category">
+                        <div class="category-title">
+                            <i data-lucide="lock"></i>
+                            核心原則 (1-4)
+                        </div>
+                        <div class="node" onclick="showDetail('cia')">
+                            <i data-lucide="shield"></i>
+                            <span>CIA - 機密性、完整性、可用性</span>
+                        </div>
+                        <div class="node" onclick="showDetail('nonrepudiation')">
+                            <i data-lucide="file-signature"></i>
+                            <span>Non-repudiation - 不可否認性</span>
+                        </div>
+                        <div class="node" onclick="showDetail('zerotrust')">
+                            <i data-lucide="shield-x"></i>
+                            <span>Zero Trust - 零信任架構</span>
+                        </div>
+                        <div class="node" onclick="showDetail('leastprivilege')">
+                            <i data-lucide="key"></i>
+                            <span>Least Privilege - 最小權限原則</span>
+                        </div>
+                    </div>
+
+                    <div class="category">
+                        <div class="category-title">
+                            <i data-lucide="user-check"></i>
+                            身份驗證 (5-11)
+                        </div>
+                        <div class="node" onclick="showDetail('sso')">
+                            <i data-lucide="log-in"></i>
+                            <span>SSO - 單一登入</span>
+                        </div>
+                        <div class="node" onclick="showDetail('mfa')">
+                            <i data-lucide="fingerprint"></i>
+                            <span>MFA / 2FA - 多重/雙重要素驗證</span>
+                        </div>
+                        <div class="node" onclick="showDetail('ldap')">
+                            <i data-lucide="database"></i>
+                            <span>LDAP - 輕量型目錄存取協定</span>
+                        </div>
+                        <div class="node" onclick="showDetail('rbac')">
+                            <i data-lucide="users"></i>
+                            <span>RBAC - 基於角色的存取控制</span>
+                        </div>
+                        <div class="node" onclick="showDetail('acl')">
+                            <i data-lucide="list-checks"></i>
+                            <span>ACL - 存取控制清單</span>
+                        </div>
+                        <div class="node" onclick="showDetail('biometric')">
+                            <i data-lucide="scan-face"></i>
+                            <span>Biometric Authentication - 生物特徵認證</span>
+                        </div>
+                    </div>
+
+                    <div class="category">
+                        <div class="category-title">
+                            <i data-lucide="lock-keyhole"></i>
+                            加密技術 (12-22)
+                        </div>
+                        <div class="node" onclick="showDetail('symmetric')">
+                            <i data-lucide="key-round"></i>
+                            <span>Symmetric Encryption - 對稱加密</span>
+                        </div>
+                        <div class="node" onclick="showDetail('asymmetric')">
+                            <i data-lucide="key-square"></i>
+                            <span>Asymmetric Encryption - 非對稱加密</span>
+                        </div>
+                        <div class="node" onclick="showDetail('rsa')">
+                            <i data-lucide="lock"></i>
+                            <span>RSA - 加密演算法</span>
+                        </div>
+                        <div class="node" onclick="showDetail('aes')">
+                            <i data-lucide="shield-check"></i>
+                            <span>AES - 進階加密標準</span>
+                        </div>
+                        <div class="node" onclick="showDetail('pki')">
+                            <i data-lucide="network"></i>
+                            <span>PKI - 公開金鑰基礎建設</span>
+                        </div>
+                        <div class="node" onclick="showDetail('digitalsig')">
+                            <i data-lucide="pen-tool"></i>
+                            <span>Digital Signature - 數位簽證</span>
+                        </div>
+                        <div class="node" onclick="showDetail('ca')">
+                            <i data-lucide="award"></i>
+                            <span>CA - 憑證授權中心</span>
+                        </div>
+                        <div class="node" onclick="showDetail('https')">
+                            <i data-lucide="lock"></i>
+                            <span>HTTPS - 安全超文本傳輸協定</span>
+                        </div>
+                        <div class="node" onclick="showDetail('hash')">
+                            <i data-lucide="hash"></i>
+                            <span>Hash Function - 雜湊函數</span>
+                        </div>
+                        <div class="node" onclick="showDetail('md5')">
+                            <i data-lucide="file-digit"></i>
+                            <span>MD5 - 訊息摘要演算法</span>
+                        </div>
+                        <div class="node" onclick="showDetail('sha')">
+                            <i data-lucide="shield-check"></i>
+                            <span>SHA - 安全雜湊演算法</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右側區塊 -->
+                <div class="right-section">
+                    <div class="category">
+                        <div class="category-title">
+                            <i data-lucide="wallet"></i>
+                            區塊鏈安全 (23-24)
+                        </div>
+                        <div class="node" onclick="showDetail('coldwallet')">
+                            <i data-lucide="refrigerator"></i>
+                            <span>Cold/Hot Wallet - 冷/熱錢包</span>
+                        </div>
+                        <div class="node" onclick="showDetail('multisig')">
+                            <i data-lucide="key-round"></i>
+                            <span>Multi-Signature Wallet - 多重簽名錢包</span>
+                        </div>
+                    </div>
+
+                    <div class="category">
+                        <div class="category-title">
+                            <i data-lucide="globe"></i>
+                            網路安全 (25-28)
+                        </div>
+                        <div class="node" onclick="showDetail('nat')">
+                            <i data-lucide="network"></i>
+                            <span>NAT - 網路位址轉譯</span>
+                        </div>
+                        <div class="node" onclick="showDetail('vpn')">
+                            <i data-lucide="shield"></i>
+                            <span>VPN - 虛擬私人網路</span>
+                        </div>
+                        <div class="node" onclick="showDetail('ssl')">
+                            <i data-lucide="lock"></i>
+                            <span>SSL - 安全通訊端層</span>
+                        </div>
+                        <div class="node" onclick="showDetail('tls')">
+                            <i data-lucide="shield-check"></i>
+                            <span>TLS - 傳輸層安全協定</span>
+                        </div>
+                    </div>
+
+                    <div class="category">
+                        <div class="category-title">
+                            <i data-lucide="shield-alert"></i>
+                            防禦系統 (29-36)
+                        </div>
+                        <div class="node" onclick="showDetail('dmz')">
+                            <i data-lucide="layers"></i>
+                            <span>DMZ - 非軍事化區域</span>
+                        </div>
+                        <div class="node" onclick="showDetail('firewall')">
+                            <i data-lucide="shield"></i>
+                            <span>Firewall - 防火牆</span>
+                        </div>
+                        <div class="node" onclick="showDetail('waf')">
+                            <i data-lucide="shield-half"></i>
+                            <span>WAF - 網站應用程式防火牆</span>
+                        </div>
+                        <div class="node" onclick="showDetail('ngfw')">
+                            <i data-lucide="shield-alert"></i>
+                            <span>NGFW - 次世代防火牆</span>
+                        </div>
+                        <div class="node" onclick="showDetail('proxy')">
+                            <i data-lucide="arrow-left-right"></i>
+                            <span>Proxy Server - 代理伺服器</span>
+                        </div>
+                        <div class="node" onclick="showDetail('ids')">
+                            <i data-lucide="search"></i>
+                            <span>IDS - 入侵偵測系統</span>
+                        </div>
+                        <div class="node" onclick="showDetail('hids')">
+                            <i data-lucide="monitor"></i>
+                            <span>HIDS - 主機型入侵偵測系統</span>
+                        </div>
+                        <div class="node" onclick="showDetail('nids')">
+                            <i data-lucide="network"></i>
+                            <span>NIDS - 網路型入侵偵測系統</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">×</button>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <script>
+        const content = {
+            'cia': {
+                title: 'CIA - Confidentiality, Integrity, Availability / 機密性、完整性、可用性',
+                icon: 'shield',
+                relations: ['symmetric', 'hash', 'backup'],
+                sections: [
+                    {
+                        title: '📌 定義',
+                        content: 'CIA是一種資訊安全模型,為資安程序與政策提供整體性的指引,包含機密性、完整性、可用性,分別為了防止資料外洩、被竄改,還有確保授權使用者在需要時能隨時使用資訊。'
+                    },
+                    {
+                        title: '🔧 主流實現技術',
+                        list: [
+                            'RSA加密(機密性): 透過公鑰私鑰管理資訊使用權限',
+                            '雜湊函數(完整性): 比對雜湊值驗證檔案是否完整',
+                            '冷熱備元(可用性): 透過額外的備元系統維持服務不中斷'
+                        ]
+                    },
+                    {
+                        title: '⚠️ 限制',
+                        content: 'CIA的限制在於過於簡潔而未涵蓋其他的安全屬性(例如不可否認性)等。'
+                    },
+                    {
+                        title: '🎯 應用場景',
+                        content: '主要應用於線上銀行系統防止帳戶冒用與資料竄改,並維持服務不中斷。'
+                    },
+                    {
+                        title: '🔗 技術關係',
+                        content: '<div style="margin-top:10px"><span class="relation-tag">🔗 機密性: Symmetric Encryption</span><span class="relation-tag">🔗 完整性: Hash Function</span></div>'
+                    }
+                ]
+            },
+            'nonrepudiation': {
+                title: 'Non-repudiation - 不可否認性',
+                icon: 'file-signature',
+                relations: ['digitalsig', 'ca'],
+                sections: [
+                    {
+                        title: '📌 定義',
+                        content: '確保雙方無法否認其做出的行為或交易,讓資料具可追溯性與法律效力。'
+                    },
+                    {
+                        title: '🔧 主要實現技術',
+                        content: '主要實現技術是數位簽章。它將文件的雜湊值利用簽署者的私鑰進行加密,以產生簽章。此過程仰賴憑證中心(CA)作為可信第三方,以驗證簽署者的真實身分,並將其公鑰與身分資訊綁定在數位憑證中,從而建立信任鏈。'
+                    },
+                    {
+                        title: '✨ 優勢',
+                        content: '數位簽章利用雜湊值確保文件完整性,並透過公鑰驗證簽署者身分,因此可信度比紙本簽名高。'
+                    },
+                    {
+                        title: '🎯 應用場景',
+                        content: '應用於電子合約的簽署,以確保當事人無法否認交易行為。'
+                    }
+                ]
+            },
+            'zerotrust': {
+                title: 'Zero Trust / 零信任架構',
+                icon: 'shield-x',
+                relations: ['leastprivilege', 'mfa'],
+                sections: [
+                    {
+                        title: '📌 定義',
+                        content: '零信任架構是一種雲端安全性模型,機構內外部使用者、裝置和元件視為不受信任。解決內部網路橫向移動等問題。'
+                    },
+                    {
+                        title: '🔧 核心原則',
+                        list: [
+                            '假設所有網路流量隨時都是威脅',
+                            '強制執行最低權限的存取權',
+                            '隨時監控'
+                        ]
+                    },
+                    {
+                        title: '🛠️ 主流技術',
+                        content: '零信任架構為多技術整合,主流技術包含網路分段:將網路細分、存取控制清單、最小權限原則。'
+                    },
+                    {
+                        title: '🆚 與傳統架構比較',
+                        content: '相對於傳統得到存取權就能隨意支配,零信任架構即決不信任,一律驗證。'
+                    },
+                    {
+                        title: '🎯 應用場景',
+                        content: '適用遠端辦公、雲端資源、金融醫療機密保護與IoT安全。'
+                    }
+                ]
+            },
+            'leastprivilege': {
+                title: 'Least Privilege - 最小權限原則',
+                icon: 'key',
+                relations: ['zerotrust', 'rbac'],
+                sections: [
+                    {
+                        title: '📌 定義',
+                        content: '最小權限原則是一個資訊安全概念,要求使用者、應用程式或系統中的每個模組僅被授予完成其職責所需的最低限度的權限、存取權或資源。'
+                    },
+                    {
+                        title: '🔧 實現方式',
+                        content: '透過限制存取範圍已達僅存取必要權限之效果。'
+                    },
+                    {
+                        title: '🔗 與零信任關係',
+                        content: '最低權限原則是零信任原則的核心概念,假定任何使用者或裝置都可能構成威脅。這與舊的安全性模型相反,後者認為所有來自內部網路的連線都是可信的。'
+                    },
+                    {
+                        title: '🎯 主要應用',
+                        list: [
+                            '帳戶管理',
+                            '裝置存取控制',
+                            '應用程式與系統權限'
+                        ]
+                    }
+                ]
+            },
+            'sso': {
+                title: 'SSO - Single Sign-On / 單一登入',
+                icon: 'log-in',
+                relations: ['ldap', 'mfa'],
+                sections: [
+                    {
+                        title: '📌 定義',
+                        content: 'SSO是種身分驗證機制,讓使用者在只進行一次登入的情況下使用複數相互信任的系統。'
+                    },
+                    {
+                        title: '🔧 類型',
+                        list: [
+                            '企業內部SSO系統: 組織內供人使用',
+                            '雲端服務SSO系統: 讓使用者以單一身分使用多項雲端SaaS',
+                            '公開應用SSO系統: 允許免註冊新帳號,以第三方帳號登入程式'
+                        ]
+                    },
+                    {
+                        title: '⚖️ 優缺點',
+                        content: '與傳統多密碼相比安全性更高,但遇單點故障則會使相關系統皆遭影響。'
+                    },
+                    {
+                        title: '🎯 常見應用',
+                        content: 'SSO最常見的應用就是大家熟悉的Google相關服務。'
+                    }
+                ]
+            },
+            'mfa': {
+                title: 'MFA / 2FA - 多重要素驗證 / 雙重要素驗證',
+                icon: 'fingerprint',
+                relations: ['biometric', 'sso'],
+                sections: [
+                    {
+                        title: '📌 定義',
+                        content: '2FA是一種主、被動兼具的身分驗證機制,透過結合兩種類型的驗證因子,降低帳號遭入侵的風險。'
+                    },
+                    {
+                        title: '🔧 驗證方式',
+                        list: [
+                            '知識型: 如密碼、事先設定的問題,使用者必須記住並正確輸入',
+                            '持有型: 如手機OTP、驗證 App 產生的動態碼',
+                            '生物特徵型: 例如指紋、人臉辨識'
+                        ]
+                    },
+                    {
+                        title: '✅ 優點',
+                        content: '因為2FA 引入額外驗證因子,即便密碼外洩,駭客仍需取得另一要素才能登入,有效降低攻擊成功率。'
+                    },
+                    {
+                        title: '⚠️ 缺點',
+                        content: '影響使用者便利性。'
+                    },
+                    {
+                        title: '🎯 應用場景',
+                        content: '主要應用於金融交易、雲端服務等高風險環境,確保帳號安全並強化存取控制。'
+                    }
+                ]
+            },
+            'ldap': {
+                title: 'LDAP - 輕量型目錄存取協定',
+                icon: 'database',
+                relations: ['sso', 'rbac'],
+                sections: [
+                    {
+                        title: '📌 定義',
+                        content: 'LDAP 是一種用於查詢與修改目錄資料的協定,規範了 Client 與 Server 之間的資訊交換格式、port號與認證方式。'
+                    },
+                    {
+                        title: '🔧 資料結構',
+                        content: '目錄資料以樹狀結構儲存,統一管理使用者、群組與資源資訊,可提供跨系統的身份驗證與授權。'
+                    },
+                    {
+                        title: '⚠️ 安全風險',
+                        content: '但仍可能存在 LDAP Injection 風險。'
+                    },
+                    {
+                        title: '🎯 主要應用',
+                        list: [
+                            '企業AD伺服器',
+                            '身分驗證',
+                            '授權管理',
+                            '單一登入(SSO)'
+                        ]
+                    }
+                ]
+            },
+            'rbac': {
+                title: 'RBAC - Role-Based Access Control / 基於角色的存取控制',
+                icon: 'users',
+                relations: ['ldap', 'acl'],
+                sections: [
+                    {
+                        title: '📌 定義',
+                        content: 'RBAC是以角色為中心的權限控制方式,解決逐一設定使用者權限的繁瑣與風險。'
+                    },
+                    {
+                        title: '🔧 運作原理',
+                        content: 'RBAC 透過角色連結使用者與權限,集中化管理存取控制,方便維護與查詢。'
+                    },
+                    {
+                        title: '✅ 優點',
+                        content: '管理簡單及更貼近組織架構。'
+                    },
+                    {
+                        title: '⚠️ 缺點',
+                        content: '角色過多時難以維護。'
+                    },
+                    {
+                        title: '🎯 應用場景',
+                        content: '廣泛用於公司內部系統、雲端平台及醫療、金融等需要嚴格權限控管的場合。'
+                    }
+                ]
+            },
+            'acl': {
+                title: 'ACL - Access Control List / 存取控制清單',
+                icon: 'list-checks',
+                relations: ['rbac', 'firewall'],
+                sections: [
+                    {
+                        title: '📌 定義',
+                        content: 'ACL存取控制清單透過規則管制存取權限,解決未授權進入、權限過度開放等資安問題。'
+                    },
+                    {
+                        title: '🔧 主流技術分類',
+                        list: [
+                            '檔案系統ACL: 用於設定使用者或群組的讀寫執行權限',
+                            '網路ACL: 可依來源與目的位址、協定及port等條件控管流量,並依驗證需求動態開放'
+                        ]
+                    },
+                    {
+                        title: '⚠️ 限制',
+                        content: '需人工維護、規則多時易衝突且管理複雜,可能造成效能下降。'
+                    },
+                    {
+                        title: '🎯 警政應用',
+                        content: '如限制分局電腦存取專網或刑案資料僅特定人員可開啟,以維護偵查安全。'
+                    }
+                ]
+            },
+            'biometric': {
+                title: 'Biometric Authentication - 生物特徵認證',
+                icon: 'scan-face',
+                relations: ['mfa'],
+                sections: [
+                    {
+                        title: '📌 定義',
+                        content: '生物特徵認證是指一種資安技術,系統會儲存使用者獨特的生物特徵,以便在使用者存取帳戶時進行身份驗證。'
+                    },
+                    {
+                        title: '🔧 技術原理',
+                        content: '系統會將生物特徵轉為數位模板,並使用比對算法與加密儲存,同時加入活體檢測,例如偵測血流、眨眼或溫度變化。'
+                    },
+                    {
+                        title: '⚖️ 與傳統密碼比較',
+                        content: '相較傳統密碼,生物特徵認證更難被複製或破解,但認證系統若遭駭客入侵,用戶無法重置生物特徵。'
+                    },
+                    {
+                        title: '🎯 應用分類',
+                        list: [
+                            '最安全: 虹膜檢測',
+                            '最常見: 指紋認證',
+                            '安全係數最低: 簽名'
+                        ]
+                    }
+                ]
+            },
+            'symmetric': {
+                title: 'Symmetric Encryption - 對稱加密',
+                icon: 'key-round',
+                relations: ['aes', 'asymmetric'],
+                sections: [
+                    {
+                        title: '📌 定義',
+                        content: '對稱式加密使用同一密鑰進行雙向加密和解密。'
+                    },
+                    {
+                        title: '🔧 主流演算法',
+                        content: '主流演算法為分組加密,如進階加密標準(AES);但加密並不能保證訊息不被竄改,因此會向密文中添加訊息驗證碼(MAC)。'
+                    },
+                    {
+                        title: '⚖️ 優缺點',
+                        content: '對稱式加密限制在於金鑰分發和保護困難,但它的加解密速度快,計算成本低。'
+                    },
+                    {
+                        title: '🎯 應用場景',
+                        content: '對稱式加密廣泛應用在需要高速處理大量資料的狀況。如:資料庫加密;在 SSL/TLS連線中的資料傳輸階段的加密,以確保傳輸速度。'
+                    }
+                ]
+            },
+            'asymmetric': {
+                title: 'Asymmetric Encryption - 非對稱加密',
+                icon: 'key-square',
+                relations: ['rsa', 'symmetric'],
+                sections: [
+                    {
+                        title: '📌 定義',
+                        content: '加密和解密使用不同密鑰的加密方式。'
+                    },
+                    {
+                        title: '🔧 金鑰系統',
+                        content: '使用者會先產生一組公鑰和私鑰。公鑰可以自由提供給他人使用;私鑰則必須由持有者妥善保存。'
+                    },
+                    {
+                        title: '⚖️ 特性',
+                        content: '計算過程相對複雜、速度較慢,用來加密少量資料。'
+                    },
+                    {
+                        title: '✨ 優勢',
+                        content: '能達成資訊安全的CIA 三要素(機密性、完整性與可用性)。'
+                    },
+                    {
+                        title: '🔧 主流應用',
+                        content: '主流應用方式為RSA,利用兩個大質數進行質數相乘和歐拉函數生成公開金鑰與私密金鑰,透過質因數分解困難性確保安全。'
+                    }
+                ]
+            },
+            'rsa': {
+                title: 'RSA - 加密演算法',
+                icon: 'lock',
+                relations: ['asymmetric', 'digitalsig'],
+                sections: [
+                    {
+                        title: '📌 參照',
+                        content: 'RSA加密演算法請參照非對稱加密說明。'
+                    },
+                    {
+                        title: '🔧 技術原理',
+                        content: '利用兩個大質數進行質數相乘和歐拉函數生成公開金鑰與私密金鑰,透過質因數分解困難性確保安全。'
+                    },
+                    {
+                        title: '✅ 優點',
+                        content: '安全性高、能進行身份驗證。'
+                    },
+                    {
+                        title: '⚠️ 缺點',
+                        content: '加解密計算複雜、速度慢,難以處理大量資料,因此通常只用於金鑰交換,再搭配AES等對稱演算法提升效率。'
+                    },
+                    {
+                        title: '🎯 主要用途',
+                        list: [
+                            '網路傳輸保密',
+                            '數位簽章與憑證驗證',
+                            'VPN安全協定',
+                            '電子支付及郵件加密'
+                        ]
+                    }
+                ]
+            },
+            'aes': {
+                title: 'AES - Advanced Encryption Standard / 進階加密標準',
+                icon: 'shield-check',
+                relations: ['symmetric'],
+                sections: [
+                    {
+                        title: '📌 參照',
+                        content: '請參閱對稱加密說明。'
+                    },
+                    {
+                        title: '🔧 技術規格',
+                        content: '規格採固定 128 位元區塊,金鑰長度可為 128、192、256 位元,分別需 10、12、14 輪加密運算。'
+                    },
+                    {
+                        title: '🔧 核心步驟',
+                        list: [
+                            '字元替換(改變位元組)',
+                            '列移動(調整順序)',
+                            '行混合(增加分散性)',
+                            '金鑰加合(與金鑰結合)'
+                        ]
+                    },
+                    {
+                        title: '🆚 與其他加密比較',
+                        content: '相較於 DES,AES 區塊更大、金鑰更強且效率高;不同於 RSA 等非對稱加密,AES 適合大量資料處理,但限制在於金鑰必須妥善管理。'
+                    },
+                    {
+                        title: '🎯 應用場景',
+                        content: '目前 AES 已廣泛應用於 HTTPS、VPN、無線網路、磁碟保護及金融支付等安全場景。'
+                    }
+                ]
+            },
+            'pki': {
+                title: 'PKI - Public Key Infrastructure / 公開金鑰基礎建設',
+                icon: 'network',
+                relations: ['ca', 'digitalsig'],
+                sections: [
+                    {
+                        title: '📌 運作流程',
+                        list: [
+                            '使用者先向 CA(憑證授權中心)申請憑證',
+                            'CA核發並簽署一份數位憑證',
+                            'CA將數位憑證回傳給使用者',
+                            '使用者連線時,將這份憑證送給網路服務或伺服器,做為身分識別',
+                            '網路服務或伺服器向CA 驗證憑證的真偽與有效性'
+                        ]
+                    },
+                    {
+                        title: '🎯 應用場景',
+                        content: 'PKI/CA 應用於 HTTPS 網站安全連線,保護資料不被竊聽;電子郵件加密與簽章,避免內容遭竄改;企業 VPN 登入驗證,僅允許合法身分存取;政府公文、電子簽章與金融交易,確保身分真實與資料完整。'
+                    }
+                ]
+            },
+            'digitalsig': {
+                title: 'Digital Signature - 數位簽證',
+                icon: 'pen-tool',
+                relations: ['pki', 'https'],
+                sections: [
+                    {
+                        title: '📌 技術說明',
+                        content: '數位簽章(Digital Signature)利用非對稱加密,以私鑰對雜湊值產生簽章;接收者以公鑰驗證,確保身分認證性、完整性與不可否認性。'
+                    },
+                    {
+                        title: '🔗 與HTTPS關係',
+                        content: 'HTTPS透過數位簽章和CA來達到瀏覽網站時的CIA,建立安全連線。'
+                    },
+                    {
+                        title: '🎯 應用',
+                        content: '此技術廣泛應用於電子商務、金融交易,防範偽造與資料洩露。'
+                    }
+                ]
+            },
+            'ca': {
+                title: 'CA - Certificate Authority / 憑證授權中心',
+                icon: 'award',
+                relations: ['pki', 'https'],
+                sections: [
+                    {
+                        title: '📌 說明',
+                        content: '請參閱PKI說明,CA為PKI架構中的核心組件,負責核發與管理數位憑證。'
+                    }
+                ]
+            },
+            'https': {
+                title: 'HTTPS - Hypertext Transfer Protocol Secure / 安全超文本傳輸協定',
+                icon: 'lock',
+                relations: ['ssl', 'tls', 'digitalsig'],
+                sections: [
+                    {
+                        title: '📌 定義',
+                        content: 'HTTPS(Hypertext Transfer Protocol Secure)是HTTP的安全版本,使用1.3版本TLS(Transport Layer Security)協議加密資料傳輸,防止中間人攻擊與竊聽。'
+                    },
+                    {
+                        title: '🔧 安全機制',
+                        content: 'HTTPS透過數位簽章和CA來達到瀏覽網站時的CIA,建立安全連線。'
+                    },
+                    {
+                        title: '🎯 應用',
+                        content: '此技術廣泛應用於電子商務、金融交易,防範偽造與資料洩露。'
+                    }
+                ]
+            },
+            'hash': {
+                title: 'Hash Function - 雜湊函數',
+                icon: 'hash',
+                relations: ['md5', 'sha'],
+                sections: [
+                    {
+                        title: '📌 定義',
+                        content: '雜湊函數是一種將任意長度輸入轉換為固定長度輸出的單向函數,稱為雜湊值或雜湊碼,產生一個獨一無二的數位指紋,用以驗證資料的完整性和一致性。'
+                    },
+                    {
+                        title: '🔧 特性',
+                        list: [
+                            '單向性',
+                            '抗碰撞性',
+                            '雪崩效應',
+                            '固定長度輸出'
+                        ]
+                    },
+                    {
+                        title: '📊 常見演算法',
+                        content: '常見的雜湊演算法有SHA-256、SHA-3 和 MD5。'
+                    },
+                    {
+                        title: '⚖️ 演算法比較',
+                        content: 'MD5 因已發現碰撞攻擊而不適用於安全應用,多用於檔案校驗。SHA-256 和 SHA-3 則因更高的安全性,取代成主流。'
+                    },
+                    {
+                        title: '🎯 應用',
+                        content: '廣泛應用於密碼儲存、數位簽章、區塊鏈交易驗證與檔案完整性檢查。'
+                    }
+                ]
+            },
+            'md5': {
+                title: 'MD5 - Message Digest 5 / 訊息摘要演算法',
+                icon: 'file-digit',
+                relations: ['hash'],
+                sections: [
+                    {
+                        title: '📌 定義',
+                        content: 'MD5是一種雜湊演算法,可以把任何長度的資料轉換成128位元的雜湊值,常用於保護資料安全。'
+                    },
+                    {
+                        title: '✨ 特點',
+                        content: '只要改動一個字或一個位元,雜湊值就會完全不同。這讓它非常適合用來驗證檔案是否被竄改,例如下載軟體時,比對官方提供的 MD5 值就能確認檔案完整性。'
+                    },
+                    {
+                        title: '⚠️ 安全問題',
+                        content: '不過MD5不夠安全,尤其碰撞攻擊(不同的資料也能產生相同結果)問題最嚴重,後來被SHA-256、SHA-3等更安全的演算法取代。'
+                    },
+                    {
+                        title: '🎯 早期應用',
+                        content: '早期常應用於檢視檔案完整性、密碼保護以及數位簽章。'
+                    }
+                ]
+            },
+            'sha': {
+                title: 'SHA - Secure Hash Algorithm / 安全雜湊演算法',
+                icon: 'shield-check',
+                relations: ['hash'],
+                sections: [
+                    {
+                        title: '📌 定義',
+                        content: 'SHA是一組密碼雜湊函數,可將任意長度的資料轉換成固定長度的雜湊值。解決數據的「完整性驗證」問題。'
+                    },
+                    {
+                        title: '🔧 技術特性',
+                        list: [
+                            '利用壓縮資料成獨一無二的亂數',
+                            '具有不可逆性、一致性、抗碰撞性和雪崩效應',
+                            '可加鹽處理(如MAC),防彩虹表攻擊',
+                            '有版本回退標記'
+                        ]
+                    },
+                    {
+                        title: '🆚 與SSL比較',
+                        content: '與SSL用MD5相比,利用MAC能避免中間人攻擊,具有更強的金鑰交換方式。'
+                    },
+                    {
+                        title: '🎯 主要應用',
+                        content: '主要應用於驗證檔案完整性、密碼儲存、區塊鏈、數位簽名等,防止資料被篡改。'
+                    }
+                ]
+            },
+            'coldwallet': {
+                title: 'Cold Wallet / Hot Wallet - 冷錢包 / 熱錢包',
+                icon: 'wallet',
+                relations: ['multisig'],
+                sections: [
+                    {
+                        title: '📌 定義',
+                        content: '冷熱錢包皆用於管理私鑰及加密資產,熱錢包連網以利交易,冷錢包離線存放以提升安全。'
+                    },
+                    {
+                        title: '🔧 核心技術',
+                        list: [
+                            '私鑰產生',
+                            '公鑰推導',
+                            '數位簽章機制'
+                        ]
+                    },
+                    {
+                        title: '🔥 熱錢包',
+                        content: '形式為APP、瀏覽器外掛。操作快速,但受駭風險高。常用於交易所、DeFi、支付。主流廠牌:MetaMask、Trust Wallet、Coinbase Wallet。'
+                    },
+                    {
+                        title: '❄️ 冷錢包',
+                        content: '形式為硬體、紙本、離線設備。安全性強,但即時交易不便。適合長期與大額存放,如主流幣種保管、機構資產管理。主流廠牌:Ledger、Trezor、CoolWallet。'
+                    }
+                ]
+            },
+            'multisig': {
+                title: 'Multi-Signature Wallet - 多重簽名錢包',
+                icon: 'key-round',
+                relations: ['coldwallet'],
+                sections: [
+                    {
+                        title: '📌 定義',
+                        content: '多重簽名錢包是一種需多方共同簽署才能完成交易的加密貨幣錢包,用以降低單一私鑰遺失或遭竊的風險。'
+                    },
+                    {
+                        title: '🔧 授權機制',
+                        content: '智能合約:需 M of N 個簽名。'
+                    },
+                    {
+                        title: '🆚 與單簽名錢包比較',
+                        list: [
+                            '安全性:極高(防單點故障、共管資產) vs 低(單鑰匙風險,易失竊)',
+                            '便捷性:慢(需多方協調) vs 快(隨時可動用)',
+                            '成本:較高(因交易數據較複雜) vs 較低(標準交易)',
+                            '主流應用:企業金庫、DAO 治理、交易所託管 vs 個人日常使用、個人冷/熱錢包'
+                        ]
+                    }
+                ]
+            },
+            'nat': {
+                title: 'NAT - Network Address Translation / 網路位址轉譯',
+                icon: 'network',
+                relations: ['firewall'],
+                sections: [
+                    {
+                        title: '📌 定義',
+                        content: 'NAT是用來解決IPv4位址不足的一個方法,當IP封包通過路由器或防火牆時,建立一個Private IP與Public IP的對應表格(NAT table),並且重寫封包內的傳送端 IP 位址與接收端 IP 位址。'
+                    },
+                    {
+                        title: '🔧 類型',
+                        list: [
+                            '靜態 NAT:提供固定一對一映射,適合穩定連線需求',
+                            '動態 NAT:依需求分配 IP,提升彈性但不保證持續可用性'
+                        ]
+                    },
+                    {
+                        title: '⚠️ 安全性限制',
+                        content: 'NAT 的限制也是安全性在於它破壞了端對端的透明性並阻礙主動接受外部連線,使得通訊必須由內部主動發起且無法直接識別來源 IP。'
+                    },
+                    {
+                        title: '🎯 應用',
+                        content: '廣泛應用於設備管理、網路存取控制與資安追蹤,為網路監控與防護基礎資訊。'
+                    }
+                ]
+            },
+            'vpn': {
+                title: 'VPN - Virtual Private Network / 虛擬私人網路',
+                icon: 'shield',
+                relations: ['ssl', 'tls'],
+                sections: [
+                    {
+                        title: '📌 定義',
+                        content: 'VPN是一種利用加密技術在個人裝置與遠端伺服器之間建立安全通道的工具,主要作用是保護網路連線安全和線上隱私。'
+                    },
+                    {
+                        title: '🔧 主流技術',
+                        content: '主流技術為SSL VPN。基於網頁瀏覽器,透過SSL/TLS通訊協定,達成加密流量、隱藏IP位址的效果,且無需安裝額外軟體。'
+                    },
+                    {
+                        title: '🎯 主要應用',
+                        content: '主要應用於規避網路限制和防範惡意軟體、追蹤器。'
+                    }
+                ]
+            },
+            'ssl': {
+                title: 'SSL - Secure Sockets Layer / 安全通訊端層',
+                icon: 'lock',
+                relations: ['tls', 'https'],
+                sections: [
+                    {
+                        title: '📌 定義',
+                        content: 'SSL 是使用非對稱加密RSA、雜湊函數MD5及憑證授權CA的網際網路安全性通訊協定,確保網際網路通訊中的隱私、驗證和資料整合性。'
+                    },
+                    {
+                        title: '🔧 應用方式',
+                        content: 'SSL 目前已廣泛的應用在HTTP連線上,當以「https://」方式連上網站,如果瀏覽器的右下角有一個鑰匙,即代表該網站有支援 SSL。'
+                    },
+                    {
+                        title: '⚠️ 安全漏洞',
+                        content: 'SSL 3.0 有一嚴重漏洞,讓攻擊者能夠使用中間人攻擊、解密網站伺服器和使用者間的通訊。'
+                    },
+                    {
+                        title: '🎯 常見應用',
+                        list: [
+                            '驗證網站身分(https)',
+                            '安全電子郵件',
+                            '檔案傳輸協議(FTP)',
+                            'VPN等'
+                        ]
+                    }
+                ]
+            },
+            'tls': {
+                title: 'TLS - Transport Layer Security / 傳輸層安全協定',
+                icon: 'shield-check',
+                relations: ['ssl', 'https'],
+                sections: [
+                    {
+                        title: '📌 定義',
+                        content: 'TLS是用來保護網際網路通訊安全的加密協定。目前最新為TLS1.3,可防止受監聽、竊取、修改資料。'
+                    },
+                    {
+                        title: '🔧 技術原理',
+                        content: 'TLS握手過程利用AES、RSA或ECDHE加密的混和式加密,金鑰交換與CA憑證驗證,加密客戶端與伺服器間資訊傳輸通道。'
+                    },
+                    {
+                        title: '🆚 與SSL比較',
+                        content: '與SSL用MD5相比,利用MAC能避免中間人攻擊,具有更強的金鑰交換方式。也有版本回退標記。'
+                    },
+                    {
+                        title: '🎯 應用',
+                        content: '應用於Web(HTTPS)瀏覽、電子郵件、即時通訊多種網際網路應用。'
+                    }
+                ]
+            },
+            'dmz': {
+                title: 'DMZ - Demilitarized Zone / 非軍事化區域',
+                icon: 'layers',
+                relations: ['firewall'],
+                sections: [
+                    {
+                        title: '📌 定義',
+                        content: 'DMZ(Demilitarized Zone,非軍事化區域)是一種網路安全架構,位於內部網路與外部網路之間,用來放置需要對外的伺服器(如 Web、Mail、DNS)。'
+                    },
+                    {
+                        title: '🔧 運作原理',
+                        content: '其原理是透過防火牆或多層網路設備建立隔離區域,讓外部使用者可存取 DMZ 中的服務,但無法直接進入內部網路。'
+                    },
+                    {
+                        title: '⚠️ 限制',
+                        content: 'DMZ僅提供網路隔離,無法主動偵測或阻斷攻擊,需搭配防火牆與其他安全機制才完整。'
+                    },
+                    {
+                        title: '🎯 應用',
+                        content: '主要應用於企業或組織的公開服務,確保對外可用的同時,降低內部資源遭入侵的風險。'
+                    }
+                ]
+            },
+            'firewall': {
+                title: 'Firewall - 防火牆',
+                icon: 'shield',
+                relations: ['waf', 'ngfw', 'dmz'],
+                sections: [
+                    {
+                        title: '📌 定義',
+                        content: '防火牆是一種網路安全設備,分為硬體防火牆和軟體防火牆兩類。'
+                    },
+                    {
+                        title: '🔧 四大基本功能',
+                        list: [
+                            '封包過濾',
+                            '網路區隔',
+                            '狀態檢測',
+                            '日誌紀錄'
+                        ]
+                    },
+                    {
+                        title: '🛠️ 建構技術',
+                        list: [
+                            '代理伺服器(Proxy Server)',
+                            '網路位址轉譯(NAT)'
+                        ]
+                    },
+                    {
+                        title: '⚠️ 限制',
+                        content: '傳統防火牆對於內部威脅(例如惡意員工、已中毒電腦)以及零時差攻擊防禦有限。'
+                    },
+                    {
+                        title: '🎯 應用',
+                        content: '常用於個人電腦防護(如作業系統內建的軟體防火牆)、企業邊界防護。'
+                    }
+                ]
+            },
+            'waf': {
+                title: 'WAF - Web Application Firewall / 網站應用程式防火牆',
+                icon: 'shield-half',
+                relations: ['firewall', 'ngfw'],
+                sections: [
+                    {
+                        title: '📌 定義',
+                        content: '位於使用者與網站伺服器之間,攔截、分析並過濾 HTTP／HTTPS 流量,防止惡意請求直接到達網站。'
+                    },
+                    {
+                        title: '🔧 防護機制',
+                        content: '透過規則比對與行為分析判斷惡意請求,防止 SQL注入、跨站腳本(XSS)、跨站請求偽造(CSRF)等惡意操作。'
+                    },
+                    {
+                        title: '🆚 與傳統防火牆差異',
+                        content: '傳統防火牆專注於網路層防護,WAF專注應用層攻擊防護,但可能誤攔合法請求。'
+                    },
+                    {
+                        title: '🎯 應用場景',
+                        content: '常見於金融、電商、政府與 API 系統,用於保護網站資料與使用者安全。'
+                    },
+                    {
+                        title: '🔗 技術關係',
+                        content: '<div style="margin-top:10px"><span class="relation-tag">🔗 基於: Firewall</span><span class="relation-tag">🔗 與: NGFW 整合</span></div>'
+                    }
+                ]
+            },
+            'ngfw': {
+                title: 'NGFW - Next-Generation Firewall / 次世代防火牆',
+                icon: 'shield-alert',
+                relations: ['firewall', 'waf', 'ids'],
+                sections: [
+                    {
+                        title: '📌 定義',
+                        content: '次世代防火牆是一種整合多層防護的進階防火牆,用於強化網路邊界與內部流量的安全防護。'
+                    },
+                    {
+                        title: '🔧 核心功能',
+                        content: '它不僅具備傳統防火牆的封包過濾與連線控制功能,還能進行應用層辨識、入侵防禦、深度封包檢查及使用者識別等進階分析。'
+                    },
+                    {
+                        title: '🆚 與傳統防火牆差異',
+                        content: '相較傳統防火牆僅被動地檢查封包標頭,次世代防火牆可深入分析封包內容,為主動式防禦。'
+                    },
+                    {
+                        title: '🎯 應用場景',
+                        content: '廣泛應用於企業網路邊界、安全閘道及雲端環境,以提升整體資訊安全性與可視性。'
+                    },
+                    {
+                        title: '🔗 技術關係',
+                        content: '<div style="margin-top:10px"><span class="relation-tag">🔗 升級: Firewall</span><span class="relation-tag">🔗 整合: IDS</span></div>'
+                    }
+                ]
+            },
+            'proxy': {
+                title: 'Proxy Server - 代理伺服器',
+                icon: 'arrow-left-right',
+                relations: ['firewall', 'vpn'],
+                sections: [
+                    {
+                        title: '📌 定義',
+                        content: '代理伺服器是在使用者端與目標伺服器間的中介橋樑。'
+                    },
+                    {
+                        title: '🔀 類型',
+                        list: [
+                            '正向代理: 使用者端對伺服器發出要求,再由代理伺服器向伺服器源進行存取請求',
+                            '反向代理: 反向代理則反之'
+                        ]
+                    },
+                    {
+                        title: '⚖️ 優缺點',
+                        content: '與無代理(直連)方式相比雖多了因代理而造成的延遲但提高了隱蔽性和穩定度。'
+                    },
+                    {
+                        title: '🎯 常見應用',
+                        content: '常見的應用有VPN、防火牆、遊戲加速器等。'
+                    },
+                    {
+                        title: '🔗 技術關係',
+                        content: '<div style="margin-top:10px"><span class="relation-tag">🔗 應用於: VPN</span><span class="relation-tag">🔗 應用於: Firewall</span></div>'
+                    }
+                ]
+            },
+            'ids': {
+                title: 'IDS - Intrusion Detection System / 入侵偵測系統',
+                icon: 'search',
+                relations: ['hids', 'nids', 'firewall'],
+                sections: [
+                    {
+                        title: '📌 定義',
+                        content: 'IDS是一種資安防護技術,用來監控、分析網路流量或系統活動,以偵測是否有惡意行為,屬於被動防禦機制,主要負責「偵測、記錄、警報」。'
+                    },
+                    {
+                        title: '🔧 偵測方法',
+                        list: [
+                            '特徵比對式: 如SQL注射攻擊',
+                            '異常偵測式: 如DDoS'
+                        ]
+                    },
+                    {
+                        title: '📊 主要類型',
+                        list: [
+                            '網路式(NIDS): 監控網路流量',
+                            '主機式(HIDS): 監控主機活動'
+                        ]
+                    },
+                    {
+                        title: '🆚 與IPS差異',
+                        content: 'IDS 與 IPS 的差異在於IDS只偵測並警報,不會主動介入阻擋異常,通常在旁路監控。'
+                    },
+                    {
+                        title: '🎯 應用',
+                        content: '企業內部架設多個 IDS 節點,監控辦公網路、伺服器區與外部連線。'
+                    },
+                    {
+                        title: '🔗 技術關係',
+                        content: '<div style="margin-top:10px"><span class="relation-tag">🔗 類型: HIDS</span><span class="relation-tag">🔗 類型: NIDS</span></div>'
+                    }
+                ]
+            },
+            'hids': {
+                title: 'HIDS - Host-based Intrusion Detection System / 主機型入侵偵測系統',
+                icon: 'monitor',
+                relations: ['ids', 'nids'],
+                sections: [
+                    {
+                        title: '📌 定義',
+                        content: '用於監控並辨識電腦或網路環境中的可疑活動,目的是在入侵發生或正在進行時,立即發出警報。主流偵測手法分為特徵碼比對(如SQL注射攻擊)與不正常流量識別(如DDoS)。'
+                    },
+                    {
+                        title: '🔧 監控範圍',
+                        content: '單一主機的系統與日誌。'
+                    },
+                    {
+                        title: '📊 資料來源',
+                        content: '檔案、系統呼叫、日誌。'
+                    },
+                    {
+                        title: '🎯 部署位置',
+                        content: 'HIDS多安裝於單一主機或關鍵伺服器上(如資料庫伺服器),透過監控系統日誌、檔案系統的修改。'
+                    },
+                    {
+                        title: '✅ 優點',
+                        content: '可直接分析(因在主機內部)。'
+                    },
+                    {
+                        title: '⚠️ 缺點',
+                        content: '只能監控單一主機,覆蓋範圍有限。消耗主機資源。'
+                    },
+                    {
+                        title: '🎯 偵測範圍',
+                        content: '內部入侵/系統誤用。'
+                    }
+                ]
+            },
+            'nids': {
+                title: 'NIDS - Network-based Intrusion Detection System / 網路型入侵偵測系統',
+                icon: 'network',
+                relations: ['ids', 'hids'],
+                sections: [
+                    {
+                        title: '📌 定義',
+                        content: '用於監控並辨識網路環境中的可疑活動,目的是在入侵發生或正在進行時,立即發出警報。主流偵測手法分為特徵碼比對(如SQL注射攻擊)與不正常流量識別(如DDoS)。'
+                    },
+                    {
+                        title: '🔧 監控範圍',
+                        content: '整體網路流量。'
+                    },
+                    {
+                        title: '📊 資料來源',
+                        content: '網路封包與協定內容。'
+                    },
+                    {
+                        title: '🎯 部署位置',
+                        content: 'NIDS多部署於網路節點或關鍵路由點(如閘道、DMZ區),透過即時監控經過的資料封包。'
+                    },
+                    {
+                        title: '✅ 優點',
+                        content: '影響網路效能較小。'
+                    },
+                    {
+                        title: '⚠️ 缺點',
+                        content: '對加密流量(如 HTTPS)無法直接分析。'
+                    },
+                    {
+                        title: '🎯 偵測範圍',
+                        content: '外部攻擊/網路異常行為。'
+                    },
+                    {
+                        title: '🔗 混合型應用',
+                        content: '混合型入侵偵測系統由 NIDS 監控廣域網路流量,快速偵測外部攻擊趨勢,由 HIDS 監控關鍵主機活動,達到縱深防禦的效果。'
+                    }
+                ]
+            }
+        };
+
+        function showDetail(key) {
+            const data = content[key];
+            if (!data) return;
+
+            let html = `
+                <div class="modal-title">
+                    <i data-lucide="${data.icon}" style="width: 40px; height: 40px;"></i>
+                    <span>${data.title}</span>
+                </div>
+            `;
+
+            // 顯示相關技術
+            if (data.relations && data.relations.length > 0) {
+                html += '<div style="margin-bottom: 20px; padding: 15px; background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf4 100%); border-radius: 10px; border-left: 4px solid #667eea;">';
+                html += '<strong style="color: #667eea;">🔗 相關技術連結:</strong><br>';
+                data.relations.forEach(rel => {
+                    if (content[rel]) {
+                        html += `<span class="relation-tag" style="cursor: pointer; margin: 5px;" onclick="showDetail('${rel}')">${content[rel].title.split('/')[0].trim()}</span>`;
+                    }
+                });
+                html += '</div>';
+            }
+
+            data.sections.forEach(section => {
+                html += `<div class="modal-section">`;
+                if (section.title) {
+                    html += `<h3>${section.title}</h3>`;
+                }
+                if (section.content) {
+                    html += `<div>${section.content}</div>`;
+                }
+                if (section.list) {
+                    html += `<ul>`;
+                    section.list.forEach(item => {
+                        html += `<li>${item}</li>`;
+                    });
+                    html += `</ul>`;
+                }
+                html += `</div>`;
+            });
+
+            document.getElementById('modal-body').innerHTML = html;
+            document.getElementById('modal').classList.add('active');
+            
+            // Re-initialize lucide icons
+            lucide.createIcons();
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        // Initialize lucide icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>
